@@ -3,22 +3,23 @@
     "type": "object",
     "schemaVersion": 1,
     "properties": {
-        "startUrls": {
-            "title": "Start URLs",
+        "newsletterUrls": {
+            "title": "Newsletter URLs",
             "type": "array",
             "description": "URLs to start with.",
             "editor": "requestListSources",
             "prefill": [
                 {
-                    "url": "https://apify.com"
+                    "url": "https://news.smol.ai"
                 }
             ]
         },
-        "maxRequestsPerCrawl": {
-            "title": "Max Requests per Crawl",
-            "type": "integer",
-            "description": "Maximum number of requests that can be made by this crawler.",
-            "default": 100
+        "mode": {
+            "title": "Mode",
+            "type": "string",
+            "description": "Mode to run the actor in.",
+            "enum": ["basic", "full"],
+            "default": "basic"
         }
     }
 }

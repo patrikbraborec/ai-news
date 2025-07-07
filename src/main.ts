@@ -1,49 +1,84 @@
-// Apify SDK - toolkit for building Apify Actors (Read more at https://docs.apify.com/sdk/js/)
 import { Actor } from 'apify';
-// Crawlee - web scraping and browser automation library (Read more at https://crawlee.dev)
 import { CheerioCrawler, Dataset } from 'crawlee';
 
-// this is ESM project, and as such, it requires you to specify extensions in your relative imports
-// read more about this here: https://nodejs.org/docs/latest-v18.x/api/esm.html#mandatory-file-extensions
-// note that we need to use `.js` even when inside TS files
-// import { router } from './routes.js';
+const enum Mode {
+    BASIC = 'basic',
+    FULL = 'full',
+}
 
 interface Input {
-    startUrls: {
+    newsletterUrls: {
         url: string;
         method?: 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'OPTIONS' | 'CONNECT' | 'PATCH';
         headers?: Record<string, string>;
         userData: Record<string, unknown>;
     }[];
-    maxRequestsPerCrawl: number;
+    mode: Mode;
 }
 
-// The init() call configures the Actor for its environment. It's recommended to start every Actor with an init()
+interface Data {
+    time: string;
+    title: string;
+    link: string;
+    content?: Array<{ heading: string; text: string }>;
+}
+
 await Actor.init();
 
-// Structure of input is defined in input_schema.json
-const { startUrls = ['https://apify.com'], maxRequestsPerCrawl = 100 } =
-    (await Actor.getInput<Input>()) ?? ({} as Input);
+const SUPPORTED_NEWSLETTER_URLS = [{ url: 'https://news.smol.ai' }];
+const { newsletterUrls = SUPPORTED_NEWSLETTER_URLS, mode = 'basic' } = (await Actor.getInput<Input>()) ?? ({} as Input);
 
 const proxyConfiguration = await Actor.createProxyConfiguration();
 
 const crawler = new CheerioCrawler({
     proxyConfiguration,
-    maxRequestsPerCrawl,
-    requestHandler: async ({ enqueueLinks, request, $, log }) => {
-        log.info('enqueueing new URLs');
-        await enqueueLinks();
+    requestHandler: async ({ $, log, request }) => {
+        log.info(`Actor started with mode: ${mode}`);
 
-        // Extract title from the page.
-        const title = $('title').text();
-        log.info(`${title}`, { url: request.loadedUrl });
+        if (request.userData.label === Mode.FULL) {
+            log.info('Full mode');
+            const { title, time } = request.userData;
+            const content: Data['content'] = [];
 
-        // Save url and title to Dataset - a table-like storage.
-        await Dataset.pushData({ url: request.loadedUrl, title });
+            $('article.content-area h1').each((_, el) => {
+                const heading = $(el).text().trim();
+                const text = $(el)
+                    .nextUntil('h1')
+                    .map((_, child) => $(child).text().trim())
+                    .get()
+                    .join('');
+
+                content.push({ heading, text });
+            });
+
+            await Dataset.pushData({ title, time, content });
+        } else {
+            const data: Data[] = [];
+
+            $('#timeline li').each((_index, element) => {
+                const time = $(element).find('time').text().trim();
+                const title = $(element).find('div.font-semibold').text().trim();
+                const link = $(element).find('a').attr('href') ?? '';
+                data.push({ time, title, link });
+            });
+
+            if (mode === Mode.FULL) {
+                data.forEach(({ link, title, time }) => {
+                    if (link) {
+                        log.info(`Enqueuing link: ${link}`);
+                        crawler.addRequests([
+                            { url: `https://news.smol.ai${link}`, userData: { label: Mode.FULL, title, time } },
+                        ]);
+                    }
+                });
+            } else {
+                const pushPromises = data.map(({ time, title }) => Dataset.pushData({ time, title }));
+                await Promise.allSettled(pushPromises);
+            }
+        }
     },
 });
 
-await crawler.run(startUrls);
+await crawler.run(newsletterUrls);
 
-// Gracefully exit the Actor process. It's recommended to quit all Actors with an exit()
 await Actor.exit();
