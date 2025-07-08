@@ -1,4 +1,4 @@
-# AI News Scraper
+# AI News
 
 An Apify Actor that scrapes AI newsletters, blog posts, and other content sources to create a centralized repository of AI news. The scraped content can be used to feed LLMs for summarization or read directly.
 
