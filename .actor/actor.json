@@ -1,8 +1,8 @@
 {
 	"actorSpecification": 1,
 	"name": "ai-news",
-	"title": "AI News",
-	"description": "The Actor scrapes AI newsletters and stores them in one place. You can then use the content to feed LLMs to create a summary, or just read it on your own.",
+	"title": "AI News Scraper",
+	"description": "An Apify Actor that scrapes AI newsletters, blog posts, and other content sources to create a centralized repository of AI news. The scraped content can be used to feed LLMs for summarization or read directly.",
 	"version": "0.0",
 	"meta": {
 		"templateId": "ts-crawlee-cheerio"
