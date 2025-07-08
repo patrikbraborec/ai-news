@@ -1,8 +1,8 @@
 {
 	"actorSpecification": 1,
 	"name": "ai-news",
-	"title": "Project Cheerio Crawler Typescript",
-	"description": "Crawlee and Cheerio project in typescript.",
+	"title": "AI News",
+	"description": "The Actor scrapes AI newsletters and stores them in one place. You can then use the content to feed LLMs to create a summary, or just read it on your own.",
 	"version": "0.0",
 	"meta": {
 		"templateId": "ts-crawlee-cheerio"

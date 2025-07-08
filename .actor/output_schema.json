@@ -1,9 +1,5 @@
 {
     "actorSpecification": 1,
-    "required": [
-        "title",
-        "time"
-    ],
     "views": {
         "overview": {
             "title": "Overview",
