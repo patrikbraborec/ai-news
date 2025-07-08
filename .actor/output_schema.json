@@ -1,0 +1,36 @@
+{
+    "actorSpecification": 1,
+    "required": [
+        "title",
+        "time"
+    ],
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "transformation": {
+                "fields": [
+                    "title",
+                    "time",
+                    "content"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "title": {
+                        "label": "News Title",
+                        "format": "text"
+                    },
+                    "time": {
+                        "label": "Publication Date",
+                        "format": "text"
+                    },
+                    "content": {
+                        "label": "Content Sections",
+                        "format": "array"
+                    }
+                }
+            }
+        }
+    }
+}
