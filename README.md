@@ -34,6 +34,4 @@ The Actor produces structured data with the following fields:
 
 ## Contributing
 
-Have ideas for improvements, additional news sources, or other features? 
-
-Feel free to reach out with suggestions!
+Have ideas for improvements, additional news sources, or other features? Feel free to reach out with suggestions!
